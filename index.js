@@ -35,6 +35,7 @@ client.on('messageCreate', async msg => {
   if(msg.author.bot) return;
   const comment = msg.content.toLowerCase(); // Normalize case sensitivity
   if(comment === "!!xkcd") sendRandomXKCD(msg);
+  if(comment === "!!joke") fetchJoke(msg);
   const found = badwords.find(word=>comment.includes(word))
   if(found){
     msg.reply(`\`\`\`|"${found}"|\`\`\`\nNot in my Christian server >:( `);
@@ -204,6 +205,25 @@ async function sendRandomXKCD(message) {
         console.error("Error fetching XKCD:", error);
         await message.reply("Couldn't fetch an XKCD comic. Try again!");
     }
+}
+async function fetchJoke(message) {
+    let thisjoke;
+    try {
+        const response = await fetch('https://v2.jokeapi.dev/joke/Any');
+        const data = await response.json();
+
+        if (data.type === 'single') {
+            thisjoke = data.joke;
+        } else {
+            thisjoke = `${data.setup}\n\n||${data.delivery}||`; // Spoiler tag for punchline
+        }
+    } catch (error) {
+        console.error('Error fetching joke:', error);
+        thisjoke = 'Failed to fetch a joke. Try again later!';
+    }
+    await message.reply({
+        content: `${thisjoke}`
+    });
 }
 // Slash commands defined below ------------------------
 client.on("interactionCreate", async (interaction) => {
