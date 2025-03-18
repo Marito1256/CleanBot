@@ -38,7 +38,7 @@ client.on('messageCreate', async msg => {
   if(comment === "!!joke") fetchJoke(msg);
   const found = badwords.find(word=>comment.includes(word))
   if(found){
-    msg.reply(`\`\`\`|"${found}"|\`\`\`\nNot in my Christian server >:( `);
+    msg.reply(`\`\`\`|"${found}"|\`\`\`\nWhoa there, sailor! Let's keep it classy—this isn't a pirate ship!`);
   }
 });
 // defining functions to be used in the slash commands
@@ -224,6 +224,23 @@ async function fetchJoke(message) {
     await message.reply({
         content: `${thisjoke}`
     });
+}
+async function fetchJoke(interaction) {
+    let thisjoke;
+    try {
+        const response = await fetch('https://v2.jokeapi.dev/joke/Any');
+        const data = await response.json();
+
+        if (data.type === 'single') {
+            thisjoke = data.joke;
+        } else {
+            thisjoke = `${data.setup}\n\n||${data.delivery}||`; // Spoiler tag for punchline
+        }
+    } catch (error) {
+        console.error('Error fetching joke:', error);
+        thisjoke = 'Failed to fetch a joke. Try again later!';
+    }
+    interaction.reply(`${thisjoke}`);// this might not be done, Have to wait for slash command to be registered to test it out. until then use the built in command prefix !!
 }
 // Slash commands defined below ------------------------
 client.on("interactionCreate", async (interaction) => {
